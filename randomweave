@@ -1,0 +1,248 @@
+//this script will use a poly model (mesh surface) to 
+
+//generate the weave patterns. 
+
+//You have to use polygon model. 
+
+//select it first and run the script-------
+
+//ming tang. 2007
+
+
+
+//cut face to create weave pattern
+
+
+
+proc extrudepoly()
+
+{
+
+int $ncut = `textField -q -text ncut`;
+
+float $escale = `textField -q -text escale`;
+
+float $edist = `textField -q -text edist`;
+
+
+
+string $myobject[] = `ls -sl`;
+
+print ("the quary name is" + $myobject[0]);
+
+
+
+//create weave pattern
+
+
+
+//string $myobject[] = `ls -sl`;
+
+//print ("the quary name is" + $myobject[0]);
+
+float $bound[]= `exactWorldBoundingBox $myobject`;
+
+
+
+for($n = 0; $n < $ncut; $n++)
+
+{
+
+
+
+$xx=rand($bound[0], $bound[3]);
+
+$yy=rand($bound[1], $bound[4]);
+
+$zz=rand($bound[2], $bound[5]);
+
+
+
+
+
+$rxx=rand(-180, 180);
+
+$ryy=rand(-180, 180);
+
+$rzz=rand(-180, 180);
+
+polyCut -ch on -pc $xx $yy $zz -ro $rxx $ryy $rzz $myobject.f[0:5] ;
+
+
+
+}
+
+
+
+ 
+
+
+
+//create polyextrude
+
+
+
+$item = $myobject[0] + ".f[0:99999]";
+
+select -cl; 
+
+
+
+//poker face to add details. It is a better way than triangulate 
+
+
+
+//polyPoke -ws 1 -tx 0 -ty 0 -tz 0 -ltx 0 -lty 0 -ltz 0 -ch 1 $myobject[0];
+
+
+
+
+
+select -r $item; 
+
+
+
+//extrude by scale 
+
+
+
+//select -r $myobject[0].f[0:9999] ;
+
+polyExtrudeFacet -ch 1 -kft 0 -lsx $escale -lsy $escale -lsz $escale;
+
+doDelete;
+
+
+
+//extrude again 
+
+
+
+select -r $item ;
+
+polyExtrudeFacet -ch 1 -kft 1 -ltz $edist;
+
+}
+
+
+
+//------------create UI window
+
+
+
+global proc extrudewin ()
+
+{
+
+if (`window -exists extrudeWindow`) { deleteUI extrudeWindow; }
+
+window
+
+-widthHeight 300 300
+
+-title "weave"
+
+-sizeable true
+
+extrudeWindow;
+
+
+
+//add three values
+
+
+
+columnLayout;
+
+rowColumnLayout -numberOfColumns 2
+
+-columnWidth 1 120
+
+-columnSpacing 1 20 
+
+-columnWidth 2 120 
+
+-columnSpacing 2 20; 
+
+
+
+text -l "number of cut";
+
+textField -tx 20 ncut ;
+
+text -l "extrude scale";
+
+textField -tx 0.9 escale ;
+
+text -l "extrude depth";
+
+textField -tx -0.1 edist ;
+
+setParent ..;
+
+
+
+//----break
+
+text -l "";
+
+separator -w 800;
+
+
+
+text -l "Notice: only works for poly";
+
+text -l "";
+
+
+
+//three buttons
+
+rowColumnLayout -numberOfColumns 1;
+
+
+
+
+
+//---create button 1
+
+button -label "Create Weave"
+
+-command "extrudepoly" extrudepoly;
+
+
+
+
+
+setParent ..;
+
+
+
+//break
+
+columnLayout;
+
+text -l "";
+
+separator -w 800;
+
+text -l "Ming Tang. 2007";
+
+
+
+
+
+showWindow;
+
+}
+
+
+
+extrudewin;
+
+
+
+
+
+ 
+
